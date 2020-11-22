@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:HorseFeederAvalonia.ViewModels;assembly=HorseFeederAvalonia"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        Width="900"
+        Height="400"
+        x:Class="HorseFeederAvalonia.Views.MainWindow"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="HorseFeeder">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    
+        <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel DockPanel.Dock="Top" HorizontalAlignment="Stretch">
+                <TextBlock Text="HorseFeeder" Margin="20" FontSize="20"></TextBlock>
+            </StackPanel>
+            <ScrollViewer>
+            <ItemsControl Items="{Binding Slots}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Background="{Binding BackGroundColor}" Orientation="Horizontal" HorizontalAlignment="Stretch">
+                            <StackPanel HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Number}"  VerticalAlignment="Center" FontSize="20" Margin="40,0,40,0"></TextBlock>
+                            </StackPanel>
+                            <StackPanel Margin="40,10" Width="400" HorizontalAlignment="Stretch">
+                                <TextBlock FontSize="16" HorizontalAlignment="Stretch">Naechste Ausfuehrung:</TextBlock>
+                                <TextBlock Text="{Binding ExpirationDateFormatted}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Stretch"></TextBlock>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                <Button Command="{Binding ChangeSlotTimeCommand}" HorizontalAlignment="Stretch" FontSize="16" Margin="5,10" Padding="20,0,20,0">Datum waehlen</Button>
+                                <Button Command="{Binding ToggleSlotCommand}" FontSize="16" Margin="5,10" Padding="20,0,20,0">Ausloesen</Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+    </DockPanel>
+
+</Window>
