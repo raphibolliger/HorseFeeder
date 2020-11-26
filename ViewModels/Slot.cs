@@ -64,7 +64,7 @@ namespace HorseFeederAvalonia.ViewModels
                     ToggleSlot(P1.Pin07);
                     break;
                 case 4:
-                    ToggleSlot(P1.Pin08);
+                    ToggleSlot(P1.Pin11);
                     break;
             }
         }
