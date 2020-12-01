@@ -6,6 +6,7 @@ using HorseFeederAvalonia.Services;
 using HorseFeederAvalonia.Views.Dialoges;
 using ReactiveUI;
 using System;
+using System.Diagnostics;
 using System.Reactive;
 using System.Threading.Tasks;
 using System.Timers;
@@ -16,6 +17,7 @@ namespace HorseFeederAvalonia.ViewModels
     public class SlotViewModel : ViewModelBase
     {
         private readonly ToggleService toggleService;
+        private readonly DataPersistenceService dataPersistenceService;
 
         public int Number { get; }
         public IBrush BackGroundColor { get; }
@@ -66,15 +68,73 @@ namespace HorseFeederAvalonia.ViewModels
         public ReactiveCommand<Unit, Unit> ToggleSlotCommand { get; set; }
         public ReactiveCommand<Unit, Unit> ChangeSlotTimeCommand { get; set; }
 
-        public SlotViewModel(int number, ToggleService toggleService)
+        public SlotViewModel(int number, DateTime? expirationDate, RepetitionFrequency? repetitionFrequency, ToggleService toggleService, DataPersistenceService dataPersistenceService)
         {
             this.toggleService = toggleService;
+            this.dataPersistenceService = dataPersistenceService;
 
             Number = number;
             BackGroundColor = Number % 2 == 0 ? Brushes.LightGray : Brushes.White;
-            IsExpired = true;
             ToggleSlotCommand = ReactiveCommand.CreateFromTask(ToggleSlot);
             ChangeSlotTimeCommand = ReactiveCommand.CreateFromTask(ChooseSlot);
+
+            // setup initial values for ExpirationDate and Repetition
+            if (expirationDate.HasValue)
+            {
+                // repetition and date still good -> set values
+                var now = DateTime.Now;
+                if (repetitionFrequency.HasValue && expirationDate > now)
+                {
+                    RepetitionFrequency = repetitionFrequency;
+                    ExpirationDate = expirationDate;
+                    IsExpired = false;
+                    Debug.WriteLine($"Slot {Number} set with repetition '{RepetitionFrequency}' next toggle at {ExpirationDate:F}");
+                }
+                // repetition and date already passed -> recalculate expiration date
+                else if (repetitionFrequency.HasValue && expirationDate <= now)
+                {
+                    RepetitionFrequency = repetitionFrequency;
+                    if (repetitionFrequency == Enums.RepetitionFrequency.Daily)
+                    {
+                        var nextDay = now.AddDays(1);
+                        ExpirationDate = new DateTime(nextDay.Year, nextDay.Month, nextDay.Day, expirationDate.Value.Hour, expirationDate.Value.Minute, 0);
+                    }
+                    if (repetitionFrequency == Enums.RepetitionFrequency.Weekly)
+                    {
+                        var weekday = expirationDate.Value.DayOfWeek;
+                        var nextDay = now.AddDays(1);
+                        while(weekday != nextDay.DayOfWeek)
+                        {
+                            nextDay = nextDay.AddDays(1);
+                        }
+                        ExpirationDate = new DateTime(nextDay.Year, nextDay.Month, nextDay.Day, expirationDate.Value.Hour, expirationDate.Value.Minute, 0);
+                    }
+                    Debug.WriteLine($"Slot {Number} set with repetition '{RepetitionFrequency}' next toggle at {ExpirationDate:F}");
+                }
+                // repetition not set and date already passed -> clear init without values
+                else if (expirationDate <= now)
+                {
+                    IsExpired = true;
+                    Debug.WriteLine($"Slot {Number} date was expired, no repetition set. Last date was: {expirationDate:F}");
+                }
+                // repetition not send but date is good -> set only date
+                else
+                {
+                    ExpirationDate = expirationDate;
+                    IsExpired = false;
+                    Debug.WriteLine($"Slot {Number} set without repetition, next toggle at {ExpirationDate:F}");
+                }
+
+                // setup timer if date is set
+                if (ExpirationDate.HasValue)
+                {
+                    ToggleSlotAtGivenTime(ExpirationDate.Value);
+                }
+            }
+            else
+            {
+                IsExpired = true;
+            }
         }
 
         private async Task ToggleSlot()
@@ -109,6 +169,15 @@ namespace HorseFeederAvalonia.ViewModels
                 if (result is not null)
                 {
                     if (result.SelectedDate <= DateTime.Now) return;
+
+                    // save to configuration file
+                    dataPersistenceService.SaveConfiguration(new Models.SlotConfiguration
+                    {
+                        Slot = Number,
+                        ExpirationDate = result.SelectedDate,
+                        RepetitionFrequency = result.RepetitionFrequency
+                    });
+
                     RepetitionFrequency = result.RepetitionFrequency;
                     ToggleSlotAtGivenTime(result.SelectedDate.Value);
                 }
