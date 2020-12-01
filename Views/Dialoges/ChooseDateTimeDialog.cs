@@ -1,5 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Data;
+using HorseFeederAvalonia.Enums;
 using HorseFeederAvalonia.ViewModels;
 using ReactiveUI;
 using System;
@@ -44,6 +45,24 @@ namespace HorseFeederAvalonia.Views.Dialoges
             {
                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch
             };
+            actionsStackPanel.Children.Add(new RadioButton
+            {
+                GroupName = "RepetitionFrequency",
+                Content = "Einmalig",
+                [!RadioButton.IsCheckedProperty] = new Binding(nameof(ChooseDateTimeDialogViewModel.Single))
+            });
+            actionsStackPanel.Children.Add(new RadioButton {
+                GroupName = "RepetitionFrequency",
+                Content = "Täglich",
+                [!RadioButton.IsCheckedProperty] = new Binding(nameof(ChooseDateTimeDialogViewModel.Daily))
+            });
+            actionsStackPanel.Children.Add(new RadioButton
+            {
+                GroupName = "RepetitionFrequency",
+                Content = "Wöchentlich",
+                [!RadioButton.IsCheckedProperty] = new Binding(nameof(ChooseDateTimeDialogViewModel.Weekly))
+            });
+
             actionsStackPanel.Children.Add(new Button
             {
                 Content = "Speichern",
@@ -61,8 +80,25 @@ namespace HorseFeederAvalonia.Views.Dialoges
                 {
                     try
                     {
-                        var dateTime = new DateTime(viewModel.SelectedDate.Year, viewModel.SelectedDate.Month, viewModel.SelectedDate.Day, viewModel.SelectedHour, viewModel.SelectedMinute, 0);
-                        this.Close(dateTime);
+                        DateTime dateTime = new DateTime(viewModel.SelectedDate.Year, viewModel.SelectedDate.Month, viewModel.SelectedDate.Day, viewModel.SelectedHour, viewModel.SelectedMinute, 0);
+                        RepetitionFrequency? repetitionFrequency = null;
+                        
+                        if (viewModel.Daily)
+                        {
+                            repetitionFrequency = RepetitionFrequency.Daily;
+                        }
+                        if (viewModel.Weekly)
+                        {
+                            repetitionFrequency = RepetitionFrequency.Weekly;
+                        }
+
+                        var result = new DateTimeDialogResult
+                        {
+                            SelectedDate = dateTime,
+                            RepetitionFrequency = repetitionFrequency
+                        };
+
+                        this.Close(result);
                     }
                     catch
                     {
@@ -83,5 +119,11 @@ namespace HorseFeederAvalonia.Views.Dialoges
 
             this.Content = chooseTopStackPanel;
         }
+    }
+
+    public class DateTimeDialogResult
+    {
+        public DateTime? SelectedDate { get; set; }
+        public RepetitionFrequency? RepetitionFrequency { get; set; }
     }
 }

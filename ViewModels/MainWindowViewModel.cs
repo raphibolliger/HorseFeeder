@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using HorseFeederAvalonia.Services;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
 
@@ -6,12 +7,13 @@ namespace HorseFeederAvalonia.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        public ObservableCollection<Slot> Slots { get; set; }
+        private readonly ToggleService toggleService = new ToggleService();
+
+        public ObservableCollection<SlotViewModel> Slots { get; set; }
 
         public MainWindowViewModel()
         {
-            Slots = new ObservableCollection<Slot>(Enumerable.Range(1, 8).Select(i => new Slot(i)));
+            Slots = new ObservableCollection<SlotViewModel>(Enumerable.Range(1, 4).Select(i => new SlotViewModel(i, toggleService)));
         }
-
     }
 }
