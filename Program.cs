@@ -17,6 +17,10 @@ namespace HorseFeederAvalonia
             try
             {
                 Pi.Init<BootstrapWiringPi>();
+                Pi.Gpio[Unosquare.RaspberryIO.Abstractions.P1.Pin03].Value = false;
+                Pi.Gpio[Unosquare.RaspberryIO.Abstractions.P1.Pin05].Value = false;
+                Pi.Gpio[Unosquare.RaspberryIO.Abstractions.P1.Pin07].Value = false;
+                Pi.Gpio[Unosquare.RaspberryIO.Abstractions.P1.Pin11].Value = false;
             }
             catch
             {

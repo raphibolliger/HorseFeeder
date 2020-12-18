@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Unosquare.RaspberryIO;
 using Unosquare.RaspberryIO.Abstractions;
 
 namespace HorseFeederAvalonia.Services
@@ -30,8 +31,8 @@ namespace HorseFeederAvalonia.Services
             try
             {
                 // set value to true
-                //Pi.Gpio[pin].PinMode = GpioPinDriveMode.Output;
-                //Pi.Gpio[pin].Value = true;
+                Pi.Gpio[pin].PinMode = GpioPinDriveMode.Output;
+                Pi.Gpio[pin].Value = true;
                 Debug.WriteLine($"Set {pin} to ON");
 
                 // reset the pin status to off
@@ -50,7 +51,7 @@ namespace HorseFeederAvalonia.Services
             {
                 try
                 {
-                    //Pi.Gpio[pin].Value = false;
+                    Pi.Gpio[pin].Value = false;
                     tcs.SetResult(true);
                     Debug.WriteLine($"Reset {pin} to OFF");
                 }
