@@ -142,16 +142,16 @@ namespace HorseFeederAvalonia.ViewModels
             switch (Number)
             {
                 case 1:
-                    await ToggleSlot(P1.Pin03);
-                    break;
-                case 2:
-                    await ToggleSlot(P1.Pin05);
-                    break;
-                case 3:
                     await ToggleSlot(P1.Pin07);
                     break;
-                case 4:
+                case 2:
                     await ToggleSlot(P1.Pin11);
+                    break;
+                case 3:
+                    await ToggleSlot(P1.Pin13);
+                    break;
+                case 4:
+                    await ToggleSlot(P1.Pin15);
                     break;
             }
         }
